@@ -1,38 +1,104 @@
 ## E-commerce Purchase Intelligence
 
-This project combines exploratory data analysis, SQL analytics,
-machine learning, query optimization, and business-oriented
-purchase-intent segmentation.
+This project analyzes online shopper behavior using Python, SQL,
+machine learning, and business-oriented purchase-intent segmentation.
 
-### Workflow
+The goal is to understand which behavioral signals are associated
+with purchase sessions and translate those insights into actionable
+customer-engagement strategies.
 
-1. Cleaned and explored online shopper behavioral data
-2. Performed business analysis using SQL
-3. Used CTEs, window functions and JOINs for advanced analytics
-4. Optimized SQL queries using a composite index
-5. Compared Logistic Regression, Decision Tree, KNN and SVM
-6. Selected Decision Tree based on ROC-AUC and overall performance
-7. Generated purchase probability scores
-8. Segmented sessions into Low, Medium and High Intent
-9. Built a standalone analytical dashboard
+### Project Workflow
 
-### Key Results
+Raw Dataset
+→ Data Cleaning & EDA
+→ SQL Business Analysis
+→ Advanced SQL
+→ Query Optimization
+→ Machine Learning
+→ Purchase Probability
+→ Intent Segmentation
+→ Analytical Dashboard
 
-- Decision Tree Accuracy: 89.97%
-- Decision Tree ROC-AUC: 92.30%
-- High-Intent Conversion Rate: 76.45%
-- Medium-Intent Conversion Rate: 55.13%
-- Low-Intent Conversion Rate: 5.39%
+### SQL Analysis
 
-### Key Behavioral Insight
+The project includes:
 
-PageValues was the strongest predictive feature in the Decision
-Tree model, followed by BounceRates and product engagement duration.
+- Conversion-rate analysis
+- Visitor-type analysis
+- Monthly performance analysis
+- Bounce-rate analysis
+- Product engagement analysis
+- Weekend vs weekday analysis
+- CTEs
+- Window functions
+- JOIN-based analysis
+- Data-quality checks
+- Query-performance analysis
 
-### Business Application
+A composite index was created on:
 
-The analysis demonstrates how behavioral signals can be used to
-prioritize high-intent shopping sessions for targeted engagement.
+`(visitor_type, revenue)`
 
-The dataset is session-level, so the project does not claim
-customer-level lifetime value, retention, or causality.
+to optimize purchase-related filtering.
+
+### Machine Learning
+
+Four classification models were evaluated:
+
+| Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| Decision Tree | 89.97% | 71.22% | 60.17% | 65.23% | **92.30%** |
+| Logistic Regression | 88.93% | 77.25% | 41.30% | 53.83% | 89.64% |
+| SVM | 89.02% | 76.30% | 43.19% | 55.15% | 87.84% |
+| KNN | 87.35% | 66.43% | 38.57% | 48.81% | 77.93% |
+
+The Decision Tree was selected based on its strongest overall
+classification performance and highest ROC-AUC.
+
+### Purchase Intent Segmentation
+
+The selected model was used to estimate purchase probability
+and divide sessions into three intent groups.
+
+| Intent Segment | Sessions | Purchases | Conversion Rate |
+|---|---:|---:|---:|
+| Low Intent | 2,542 | 137 | 5.39% |
+| Medium Intent | 234 | 129 | 55.13% |
+| High Intent | 276 | 211 | 76.45% |
+
+This demonstrates how behavioral predictions can be translated
+into actionable engagement segments.
+
+### Key Behavioral Drivers
+
+The Decision Tree identified the following major predictive signals:
+
+- PageValues — 77.21%
+- BounceRates — 7.76%
+- Month_Nov — 4.52%
+- ProductRelated_Duration — 3.98%
+
+PageValues was the dominant predictive feature in the model.
+
+### Business Insights
+
+- High-intent sessions showed substantially higher observed conversion
+  than low-intent sessions.
+- Product engagement and browsing behavior provide useful signals
+  for purchase prediction.
+- Bounce-rate behavior can be used as an indicator for identifying
+  sessions requiring different engagement strategies.
+- Predictive intent segmentation can help prioritize engagement
+  efforts toward sessions with stronger purchase signals.
+
+### Important Dataset Limitation
+
+The dataset represents online shopping sessions rather than a
+full customer-level transaction history.
+
+Therefore, this project does not claim customer lifetime value,
+customer-level retention, or causal relationships.
+
+A production system could extend the approach by combining
+session behavior with customer IDs, purchase history, campaign
+interactions and downstream conversion outcomes.
