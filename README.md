@@ -1,42 +1,38 @@
-# 🛒 Online Shopper Purchase Intention Prediction using Machine Learning
+## E-commerce Purchase Intelligence
 
-## 📌 Overview
-This project predicts whether an online shopper will make a purchase based on their browsing behavior using machine learning techniques.
+This project combines exploratory data analysis, SQL analytics,
+machine learning, query optimization, and business-oriented
+purchase-intent segmentation.
 
-## 📊 Dataset
-The dataset contains various features related to user activity on an e-commerce website, such as:
-- Administrative, Informational, ProductRelated pages
-- Bounce Rates, Exit Rates, Page Values
-- Visitor Type (Returning/New)
-- Weekend activity
+### Workflow
 
-Target variable:
-- **Revenue (True/False)**
+1. Cleaned and explored online shopper behavioral data
+2. Performed business analysis using SQL
+3. Used CTEs, window functions and JOINs for advanced analytics
+4. Optimized SQL queries using a composite index
+5. Compared Logistic Regression, Decision Tree, KNN and SVM
+6. Selected Decision Tree based on ROC-AUC and overall performance
+7. Generated purchase probability scores
+8. Segmented sessions into Low, Medium and High Intent
+9. Built a standalone analytical dashboard
 
-## ⚙️ Technologies Used
-- Python
-- Pandas, NumPy
-- Matplotlib, Seaborn
-- Scikit-learn
+### Key Results
 
-## 🔍 Project Workflow
-1. Data preprocessing (handling missing values, encoding categorical features)
-2. Exploratory Data Analysis (EDA)
-3. Feature engineering
-4. Model training (Logistic Regression / Random Forest)
-5. Model evaluation
+- Decision Tree Accuracy: 89.97%
+- Decision Tree ROC-AUC: 92.30%
+- High-Intent Conversion Rate: 76.45%
+- Medium-Intent Conversion Rate: 55.13%
+- Low-Intent Conversion Rate: 5.39%
 
-## 📈 Results
-The model successfully predicts user purchase intention with good accuracy.
+### Key Behavioral Insight
 
-## 💡 Key Insights
-- Returning visitors are more likely to make purchases
-- Higher page engagement leads to higher conversion
-- Bounce rate negatively impacts purchase behavior
+PageValues was the strongest predictive feature in the Decision
+Tree model, followed by BounceRates and product engagement duration.
 
-## 🚀 Future Improvements
-- Hyperparameter tuning
-- Deployment using Streamlit or Flask
-- Real-time prediction system
+### Business Application
 
-## 📁 Project Structure
+The analysis demonstrates how behavioral signals can be used to
+prioritize high-intent shopping sessions for targeted engagement.
+
+The dataset is session-level, so the project does not claim
+customer-level lifetime value, retention, or causality.
