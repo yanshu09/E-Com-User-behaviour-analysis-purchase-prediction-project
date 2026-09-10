@@ -81,5 +81,219 @@ while Low Intent converted at 5.39%.
 Dataset: Online Shoppers Purchasing Intention. Dashboard generated from the same preprocessing/model configuration used in the project notebook.
 </div>
 </div>
+
+<style>
+/* Interactive analytics layer */
+.navbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 20px;display:flex;gap:8px;justify-content:center}
+.navbar button{border:0;background:#f3f4f6;padding:9px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+.navbar button:hover,.navbar button.active{background:#1f2937;color:#fff}
+.interactive{margin-top:18px}
+.panel{background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-top:18px}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.control label{display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600}
+.control select,.control input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #d1d5db;border-radius:7px;background:#fff}
+.action{margin-top:12px;background:#1f2937;color:#fff;border:0;padding:11px 16px;border-radius:7px;font-weight:700;cursor:pointer}
+.result{margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.result-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:15px}
+.result-box .big{font-size:25px;font-weight:800;margin-top:5px}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+.high{background:#dcfce7;color:#166534}.medium{background:#fef3c7;color:#92400e}.low{background:#dbeafe;color:#1e40af}
+.sql-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.code{background:#111827;color:#e5e7eb;padding:16px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55}
+.cost{font-size:24px;font-weight:800}.muted{color:#6b7280;font-size:13px}
+.reco{border-left:4px solid #1f2937;padding:12px 14px;background:#f8fafc;margin-top:10px}
+.hidden{display:none}
+@media(max-width:800px){.controls,.result,.sql-grid{grid-template-columns:1fr}.navbar{overflow:auto;justify-content:flex-start}}
+</style>
+
+<div class="navbar">
+  <button class="navbtn active" data-target="overview">Overview</button>
+  <button class="navbtn" data-target="explorer">Session Explorer</button>
+  <button class="navbtn" data-target="predictor">Intent Simulator</button>
+  <button class="navbtn" data-target="sql">SQL Performance</button>
+</div>
+
+<div class="container interactive">
+  <section id="explorer" class="panel app-section">
+    <h2 style="margin-top:0">🔎 Session Explorer</h2>
+    <p class="muted">Explore the aggregate findings from the analysis without changing the underlying model results.</p>
+    <div class="controls">
+      <div class="control"><label>View</label>
+        <select id="exploreType">
+          <option value="visitor">Visitor Type</option>
+          <option value="intent">Intent Segment</option>
+          <option value="day">Weekday vs Weekend</option>
+          <option value="month">Monthly Conversion</option>
+        </select>
+      </div>
+      <div class="control"><label>Selection</label><select id="exploreSelection"></select></div>
+      <div class="control"><label>Metric</label><select id="exploreMetric">
+        <option value="conversion">Conversion Rate</option><option value="sessions">Sessions</option><option value="purchases">Purchases</option>
+      </select></div>
+      <div class="control"><label>Business lens</label><select id="exploreLens">
+        <option>Customer engagement</option><option>Conversion optimization</option><option>Model interpretation</option>
+      </select></div>
+    </div>
+    <div class="result" id="exploreResult"></div>
+  </section>
+
+  <section id="predictor" class="panel app-section">
+    <h2 style="margin-top:0">🎯 Purchase Intent Scenario Simulator</h2>
+    <p class="muted">Interactive browser-side scenario tool based on the project's strongest behavioral signals. It is a decision-support demo, not a replacement for serving the trained Python model.</p>
+    <div class="controls">
+      <div class="control"><label>Visitor Type</label>
+        <select id="pVisitor"><option>Returning Visitor</option><option>New Visitor</option><option>Other</option></select>
+      </div>
+      <div class="control"><label>Product Pages</label><input id="pProduct" type="number" min="0" value="25"></div>
+      <div class="control"><label>Product Duration (sec)</label><input id="pDuration" type="number" min="0" value="850"></div>
+      <div class="control"><label>Page Value</label><input id="pPage" type="number" min="0" step="0.1" value="15"></div>
+      <div class="control"><label>Bounce Rate</label><input id="pBounce" type="number" min="0" max="1" step="0.01" value="0.02"></div>
+      <div class="control"><label>Exit Rate</label><input id="pExit" type="number" min="0" max="1" step="0.01" value="0.04"></div>
+      <div class="control"><label>Weekend</label><select id="pWeekend"><option value="1">Yes</option><option value="0">No</option></select></div>
+    </div>
+    <button class="action" id="predictBtn">Simulate Intent</button>
+    <div class="result" id="predictionResult"></div>
+    <div class="reco" id="predictionReco">Enter session behavior and run the simulator.</div>
+  </section>
+
+  <section id="sql" class="panel app-section">
+    <h2 style="margin-top:0">⚡ SQL Performance Lab</h2>
+    <p class="muted">Real optimization result from the project's MySQL analysis: the query moved from a table scan to an index lookup after a composite index on <code>(visitor_type, revenue)</code>.</p>
+    <div class="sql-grid">
+      <div>
+        <h3>Before indexing</h3>
+        <div class="code">Sort: page_values DESC
+  └─ Filter:
+     visitor_type = 'Returning_Visitor'
+     revenue = true
+     └─ Table scan
+
+Estimated cost: 1265
+Estimated rows: 12,410</div>
+      </div>
+      <div>
+        <h3>After indexing</h3>
+        <div class="code">Sort: page_values DESC
+  └─ Index lookup
+     idx_visitor_revenue
+     (visitor_type, revenue)
+
+Estimated cost: 220
+Estimated rows: 1,470</div>
+      </div>
+    </div>
+    <div class="result">
+      <div class="result-box"><div class="muted">Estimated cost reduction</div><div class="big">82.6%</div></div>
+      <div class="result-box"><div class="muted">Access path</div><div class="big">Index Lookup</div></div>
+      <div class="result-box"><div class="muted">Index</div><div class="big">(visitor_type, revenue)</div></div>
+    </div>
+    <h3>Optimization query</h3>
+    <div class="code">CREATE INDEX idx_visitor_revenue
+ON shopper_sessions(visitor_type, revenue);</div>
+  </section>
+</div>
+
+<script>
+const explorerData = {
+  visitor: {
+    "New Visitor": {sessions:1694,purchases:422,conversion:24.91},
+    "Other": {sessions:85,purchases:16,conversion:18.82},
+    "Returning Visitor": {sessions:10551,purchases:1470,conversion:13.93}
+  },
+  intent: {
+    "Low Intent": {sessions:2542,purchases:137,conversion:5.39,prob:5.23},
+    "Medium Intent": {sessions:234,purchases:129,conversion:55.13,prob:49.75},
+    "High Intent": {sessions:276,purchases:211,conversion:76.45,prob:84.72}
+  },
+  day: {
+    "Weekday": {conversion:15.13},
+    "Weekend": {conversion:17.49}
+  },
+  month: {
+    "Feb":{conversion:1.65},"Mar":{conversion:10.31},"May":{conversion:11.03},
+    "June":{conversion:10.17},"Jul":{conversion:15.24},"Aug":{conversion:17.62},
+    "Sep":{conversion:19.20},"Oct":{conversion:20.98},"Nov":{conversion:25.42},"Dec":{conversion:12.76}
+  }
+};
+const labels={visitor:"Visitor Type",intent:"Intent Segment",day:"Day Type",month:"Month"};
+const selection=document.getElementById("exploreSelection");
+const type=document.getElementById("exploreType");
+const metric=document.getElementById("exploreMetric");
+function refreshSelections(){
+  const d=explorerData[type.value];
+  selection.innerHTML=Object.keys(d).map(x=>`<option>${x}</option>`).join("");
+  refreshExplorer();
+}
+function refreshExplorer(){
+  const d=explorerData[type.value][selection.value]||{};
+  const m=metric.value;
+  let value = d[m];
+  if(value===undefined && m==="conversion") value=d.conversion;
+  if(value===undefined) value="—";
+  const unit = m==="conversion" ? "%" : "";
+  let extra = "";
+  if(d.prob!==undefined) extra += `<div class="result-box"><div class="muted">Avg purchase probability</div><div class="big">${d.prob}%</div></div>`;
+  document.getElementById("exploreResult").innerHTML =
+    `<div class="result-box"><div class="muted">${labels[type.value]}</div><div class="big">${selection.value}</div></div>
+     <div class="result-box"><div class="muted">${metric.options[metric.selectedIndex].text}</div><div class="big">${value}${unit}</div></div>
+     ${extra || '<div class="result-box"><div class="muted">Analysis view</div><div class="big">Interactive</div></div>'}`;
+}
+type.addEventListener("change",refreshSelections); selection.addEventListener("change",refreshExplorer); metric.addEventListener("change",refreshExplorer);
+refreshSelections();
+
+function simulate(){
+  const product=+document.getElementById("pProduct").value||0;
+  const duration=+document.getElementById("pDuration").value||0;
+  const page=+document.getElementById("pPage").value||0;
+  const bounce=+document.getElementById("pBounce").value||0;
+  const exit=+document.getElementById("pExit").value||0;
+  const weekend=+document.getElementById("pWeekend").value;
+  const visitor=document.getElementById("pVisitor").value;
+
+  // Browser-side decision-support scoring using the same high-signal behavioral
+  // features highlighted by the trained Decision Tree. This is intentionally
+  // labeled a simulator; production inference should call the serialized model.
+  let score=0.05;
+  score += Math.min(page/80,0.18);
+  score += Math.min(duration/4000,0.12);
+  score += Math.min(page/100,0.25) * Math.min(page/20,1);
+  score += Math.min(page/100,0.12) * (page>10?1:0);
+  score += Math.min(page/40,0.32) * Math.min(page/40,1) * (page>0 && document.getElementById("pPage").value>0?1:0);
+  score += Math.min(page/200,0.08);
+  score += Math.min((1-bounce)*0.08,0.08);
+  score += Math.min((1-exit)*0.07,0.07);
+  score += page>0 ? Math.min(page/100,0.28) : 0;
+  if(visitor==="New Visitor") score += 0.05;
+  if(visitor==="Returning Visitor") score += 0.01;
+  if(weekend) score += 0.02;
+  score=Math.max(0.01,Math.min(0.97,score));
+
+  // Page Value is the dominant predictive signal in the trained model,
+  // so make it meaningfully affect the scenario score.
+  if(page>0) score=Math.min(0.97, score + Math.min(page/60,0.25));
+
+  let segment, cls, action;
+  if(score>=0.60){segment="HIGH INTENT";cls="high";action="Prioritize personalized engagement or a high-value offer."; }
+  else if(score>=0.30){segment="MEDIUM INTENT";cls="medium";action="Use a targeted nudge, recommendation, or reminder."; }
+  else {segment="LOW INTENT";cls="low";action="Prefer low-cost re-engagement rather than aggressive incentives."; }
+  document.getElementById("predictionResult").innerHTML =
+    `<div class="result-box"><div class="muted">Scenario probability</div><div class="big">${(score*100).toFixed(1)}%</div></div>
+     <div class="result-box"><div class="muted">Intent segment</div><div class="big"><span class="badge ${cls}">${segment}</span></div></div>
+     <div class="result-box"><div class="muted">Key signal</div><div class="big">${page>0?"Page Value":"Engagement"}</div></div>`;
+  document.getElementById("predictionReco").innerHTML=`<b>Recommended action:</b> ${action}<br><span class="muted">Demo note: this browser simulator is a transparent scenario layer around the project's model signals; it does not claim to reproduce the Python model's exact probability.</span>`;
+}
+document.getElementById("predictBtn").addEventListener("click",simulate);
+
+document.querySelectorAll(".navbtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const target=btn.dataset.target;
+    if(target==="overview"){window.scrollTo({top:0,behavior:"smooth"});return;}
+    document.getElementById(target).scrollIntoView({behavior:"smooth",block:"start"});
+  });
+});
+</script>
+
 </body>
 </html>
